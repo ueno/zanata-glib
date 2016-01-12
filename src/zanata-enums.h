@@ -1,0 +1,23 @@
+#ifndef ZANATA_ENUMS_H
+#define ZANATA_ENUMS_H
+
+G_BEGIN_DECLS
+
+typedef enum
+  {
+    ZANATA_ERROR_UNKNOWN,
+    ZANATA_ERROR_INVALID_RESPONSE
+  }
+ZanataError;
+
+typedef enum
+  {
+    ZANATA_PROJECT_STATUS_UNKNOWN,
+    ZANATA_PROJECT_STATUS_ACTIVE,
+    ZANATA_PROJECT_STATUS_OBSOLETE
+  }
+ZanataProjectStatus;
+
+G_END_DECLS
+
+#endif  /* ZANATA_ENUMS_H */
