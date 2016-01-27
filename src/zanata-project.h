@@ -10,13 +10,15 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE (ZanataProject, zanata_project,
                       ZANATA, PROJECT, GObject)
 
-void zanata_project_get_iterations (ZanataProject *project,
-                                    GCancellable *cancellable,
-                                    GAsyncReadyCallback callback,
-                                    gpointer user_data);
-GList *zanata_project_get_iterations_finish (ZanataProject *project,
-                                             GAsyncResult *result,
-                                             GError **error);
+void   zanata_project_get_iterations        (ZanataProject       *project,
+                                             GCancellable        *cancellable,
+                                             GAsyncReadyCallback  callback,
+                                             gpointer             user_data);
+void   zanata_project_add_iteration         (ZanataProject       *project,
+                                             ZanataIteration     *iteration);
+GList *zanata_project_get_iterations_finish (ZanataProject       *project,
+                                             GAsyncResult        *result,
+                                             GError             **error);
 
 G_END_DECLS
 

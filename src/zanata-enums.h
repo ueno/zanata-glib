@@ -18,6 +18,14 @@ typedef enum
   }
 ZanataProjectStatus;
 
+typedef enum
+  {
+    ZANATA_ITERATION_STATUS_UNKNOWN,
+    ZANATA_ITERATION_STATUS_READONLY,
+    ZANATA_ITERATION_STATUS_OBSOLETE
+  }
+ZanataIterationStatus;
+
 G_END_DECLS
 
 #endif  /* ZANATA_ENUMS_H */

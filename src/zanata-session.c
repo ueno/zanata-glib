@@ -30,10 +30,10 @@ enum {
 static GParamSpec *session_pspecs[LAST_PROP] = { 0 };
 
 static void
-zanata_session_set_property (GObject *object,
-                             guint prop_id,
+zanata_session_set_property (GObject      *object,
+                             guint         prop_id,
                              const GValue *value,
-                             GParamSpec *pspec)
+                             GParamSpec   *pspec)
 {
   ZanataSession *self = ZANATA_SESSION (object);
 
@@ -54,9 +54,9 @@ zanata_session_set_property (GObject *object,
 }
 
 static void
-zanata_session_get_property (GObject *object,
-                             guint prop_id,
-                             GValue *value,
+zanata_session_get_property (GObject    *object,
+                             guint       prop_id,
+                             GValue     *value,
                              GParamSpec *pspec)
 {
   ZanataSession *self = ZANATA_SESSION (object);
@@ -80,6 +80,10 @@ zanata_session_get_property (GObject *object,
 static void
 zanata_session_dispose (GObject *object)
 {
+  ZanataSession *self = ZANATA_SESSION (object);
+
+  g_clear_object (&self->authorizer);
+
   G_OBJECT_CLASS (zanata_session_parent_class)->dispose (object);
 }
 
@@ -115,7 +119,7 @@ zanata_session_init (ZanataSession *self)
 
 ZanataSession *
 zanata_session_new (ZanataAuthorizer *authorizer,
-                    const gchar *domain)
+                    const gchar      *domain)
 {
   return g_object_new (ZANATA_TYPE_SESSION,
                        "authorizer", authorizer,
@@ -125,7 +129,7 @@ zanata_session_new (ZanataAuthorizer *authorizer,
 
 static SoupURI *
 zanata_session_get_endpoint (ZanataSession *session,
-                             const gchar *mountpoint)
+                             const gchar   *mountpoint)
 {
   SoupURI *result;
   const gchar *orig_path;
@@ -152,9 +156,9 @@ zanata_session_get_endpoint (ZanataSession *session,
 
 static void
 collect_suggestions (JsonArray *array,
-                     guint index_,
-                     JsonNode *element_node,
-                     gpointer user_data)
+                     guint      index_,
+                     JsonNode  *element_node,
+                     gpointer   user_data)
 {
   GList **suggestions = user_data;
   JsonObject *object;
@@ -208,9 +212,9 @@ free_suggestions (GList *suggestions)
 }
 
 static void
-get_suggestions_load_from_stream_cb (GObject *source_object,
+get_suggestions_load_from_stream_cb (GObject      *source_object,
                                      GAsyncResult *res,
-                                     gpointer user_data)
+                                     gpointer      user_data)
 {
   JsonParser *parser = JSON_PARSER (source_object);
   GTask *task = G_TASK (user_data);
@@ -241,9 +245,9 @@ get_suggestions_load_from_stream_cb (GObject *source_object,
 }
 
 static void
-get_suggestions_invoke_cb (GObject *source_object,
+get_suggestions_invoke_cb (GObject      *source_object,
                            GAsyncResult *res,
-                           gpointer user_data)
+                           gpointer      user_data)
 {
   SoupSession *session = SOUP_SESSION (source_object);
   GTask *task = G_TASK (user_data);
@@ -282,13 +286,13 @@ get_suggestions_invoke_cb (GObject *source_object,
  * zanata_session_get_suggestions_finish().
  */
 void
-zanata_session_get_suggestions (ZanataSession *session,
+zanata_session_get_suggestions (ZanataSession       *session,
                                 const gchar * const *query,
-                                const gchar *from_locale,
-                                const gchar *to_locale,
-                                GCancellable *cancellable,
-                                GAsyncReadyCallback callback,
-                                gpointer user_data)
+                                const gchar         *from_locale,
+                                const gchar         *to_locale,
+                                GCancellable        *cancellable,
+                                GAsyncReadyCallback  callback,
+                                gpointer             user_data)
 {
   GTask *task;
   SoupSession *soup_session;
@@ -348,9 +352,9 @@ zanata_session_get_suggestions (ZanataSession *session,
  * suggestions
  */
 GList *
-zanata_session_get_suggestions_finish (ZanataSession *session,
-                                       GAsyncResult *result,
-                                       GError **error)
+zanata_session_get_suggestions_finish (ZanataSession  *session,
+                                       GAsyncResult   *result,
+                                       GError        **error)
 {
   g_return_val_if_fail (g_task_is_valid (result, session), NULL);
   return g_task_propagate_pointer (G_TASK (result), error);
@@ -358,9 +362,9 @@ zanata_session_get_suggestions_finish (ZanataSession *session,
 
 static void
 collect_projects (JsonArray *array,
-                  guint index_,
-                  JsonNode *element_node,
-                  gpointer user_data)
+                  guint      index_,
+                  JsonNode  *element_node,
+                  gpointer   user_data)
 {
   GList **projects = user_data;
   JsonObject *object;
@@ -400,6 +404,7 @@ collect_projects (JsonArray *array,
                           "id", id,
                           "name", name,
                           "status", status_value,
+                          "loaded", FALSE,
                           NULL);
   g_type_class_unref (enum_class);
   *projects = g_list_append (*projects, project);
@@ -412,9 +417,9 @@ free_projects (GList *projects)
 }
 
 static void
-get_projects_invoke_cb (GObject *source_object,
+get_projects_invoke_cb (GObject      *source_object,
                         GAsyncResult *res,
-                        gpointer user_data)
+                        gpointer      user_data)
 {
   RestProxyCall *call = REST_PROXY_CALL (source_object);
   GTask *task = G_TASK (user_data);
@@ -457,10 +462,10 @@ get_projects_invoke_cb (GObject *source_object,
 }
 
 void
-zanata_session_get_projects (ZanataSession *session,
-                             GCancellable *cancellable,
-                             GAsyncReadyCallback callback,
-                             gpointer user_data)
+zanata_session_get_projects (ZanataSession       *session,
+                             GCancellable        *cancellable,
+                             GAsyncReadyCallback  callback,
+                             gpointer             user_data)
 {
   GTask *task;
   RestProxy *proxy;
@@ -499,18 +504,64 @@ zanata_session_get_projects (ZanataSession *session,
  * #ZanataProject
  */
 GList *
-zanata_session_get_projects_finish (ZanataSession *session,
-                                    GAsyncResult *result,
-                                    GError **error)
+zanata_session_get_projects_finish (ZanataSession  *session,
+                                    GAsyncResult   *result,
+                                    GError        **error)
 {
   g_return_val_if_fail (g_task_is_valid (result, session), NULL);
   return g_task_propagate_pointer (G_TASK (result), error);
 }
 
 static void
-get_project_invoke_cb (GObject *source_object,
+collect_iterations (JsonArray *array,
+                    guint      index_,
+                    JsonNode  *element_node,
+                    gpointer   user_data)
+{
+  ZanataProject *project = user_data;
+  JsonObject *object;
+  const gchar *id, *status;
+  gchar *status_nick;
+  ZanataProjectStatus status_value;
+  ZanataIteration *iteration;
+  GEnumClass *enum_class;
+  GEnumValue *enum_value;
+
+  if (json_node_get_node_type (element_node) != JSON_NODE_OBJECT)
+    return;
+
+  object = json_node_get_object (element_node);
+  id = json_object_get_string_member (object, "id");
+  if (!id)
+    return;
+
+  /* FIXME: "links" */
+
+  status = json_object_get_string_member (object, "status");
+  if (!status)
+    return;
+
+  enum_class = g_type_class_ref (ZANATA_TYPE_ITERATION_STATUS);
+  status_nick = g_ascii_strdown (status, -1);
+  enum_value = g_enum_get_value_by_nick (enum_class, status_nick);
+  g_free (status_nick);
+  if (enum_value)
+    status_value = enum_value->value;
+  else
+    status_value = ZANATA_ITERATION_STATUS_UNKNOWN;
+
+  iteration = g_object_new (ZANATA_TYPE_ITERATION,
+                            "id", id,
+                            "status", status_value,
+                            "loaded", FALSE,
+                            NULL);
+  zanata_project_add_iteration (project, iteration);
+}
+
+static void
+get_project_invoke_cb (GObject      *source_object,
                        GAsyncResult *res,
-                       gpointer user_data)
+                       gpointer      user_data)
 {
   RestProxyCall *call = REST_PROXY_CALL (source_object);
   GTask *task = G_TASK (user_data);
@@ -518,6 +569,7 @@ get_project_invoke_cb (GObject *source_object,
   GError *error = NULL;
   JsonNode *node;
   JsonObject *object;
+  JsonArray *array;
   const gchar *id, *name, *status;
   gchar *status_nick;
   ZanataProjectStatus status_value;
@@ -593,21 +645,36 @@ get_project_invoke_cb (GObject *source_object,
   else
     status_value = ZANATA_PROJECT_STATUS_UNKNOWN;
 
+  array = json_object_get_array_member (object, "iterations");
+  if (!array)
+    {
+      g_object_unref (parser);
+      g_task_return_new_error (task,
+                               ZANATA_ERROR,
+                               ZANATA_ERROR_INVALID_RESPONSE,
+                               "\"iterations\" is not given");
+      return;
+    }
+
   project = g_object_new (ZANATA_TYPE_PROJECT,
                           "id", id,
                           "name", name,
                           "status", status_value,
+                          "loaded", TRUE,
                           NULL);
   g_type_class_unref (enum_class);
+
+  json_array_foreach_element (array, collect_iterations, project);
+
   g_task_return_pointer (task, project, g_object_unref);
 }
 
 void
-zanata_session_get_project (ZanataSession *session,
-                            const gchar *project_id,
-                            GCancellable *cancellable,
-                            GAsyncReadyCallback callback,
-                            gpointer user_data)
+zanata_session_get_project (ZanataSession       *session,
+                            const gchar         *project_id,
+                            GCancellable        *cancellable,
+                            GAsyncReadyCallback  callback,
+                            gpointer             user_data)
 {
   GTask *task;
   RestProxy *proxy;
@@ -645,10 +712,11 @@ zanata_session_get_project (ZanataSession *session,
  * Returns: (transfer full): a #ZanataProject
  */
 ZanataProject *
-zanata_session_get_project_finish (ZanataSession *session,
-                                   GAsyncResult *result,
-                                   GError **error)
+zanata_session_get_project_finish (ZanataSession  *session,
+                                   GAsyncResult   *result,
+                                   GError        **error)
 {
   g_return_val_if_fail (g_task_is_valid (result, session), NULL);
+
   return g_task_propagate_pointer (G_TASK (result), error);
 }
