@@ -226,6 +226,7 @@ get_suggestions_load_from_stream_cb (GObject      *source_object,
   if (!json_parser_load_from_stream_finish (parser, res, &error))
     {
       g_task_return_error (task, error);
+      g_object_unref (task);
       return;
     }
 
@@ -236,12 +237,14 @@ get_suggestions_load_from_stream_cb (GObject      *source_object,
                                ZANATA_ERROR,
                                ZANATA_ERROR_INVALID_RESPONSE,
                                "root element is not an array");
+      g_object_unref (task);
       return;
     }
 
   array = json_node_get_array (node);
   json_array_foreach_element (array, collect_suggestions, &suggestions);
   g_task_return_pointer (task, suggestions, (GDestroyNotify) free_suggestions);
+  g_object_unref (task);
 }
 
 static void
@@ -259,6 +262,7 @@ get_suggestions_invoke_cb (GObject      *source_object,
   if (!stream)
     {
       g_task_return_error (task, error);
+      g_object_unref (task);
       return;
     }
 
@@ -432,6 +436,7 @@ get_projects_invoke_cb (GObject      *source_object,
   if (!rest_proxy_call_invoke_finish (call, res, &error))
     {
       g_task_return_error (task, error);
+      g_object_unref (task);
       return;
     }
 
@@ -443,6 +448,7 @@ get_projects_invoke_cb (GObject      *source_object,
     {
       g_object_unref (parser);
       g_task_return_error (task, error);
+      g_object_unref (task);
       return;
     }
 
@@ -453,12 +459,14 @@ get_projects_invoke_cb (GObject      *source_object,
                                ZANATA_ERROR,
                                ZANATA_ERROR_INVALID_RESPONSE,
                                "root element is not an array");
+      g_object_unref (task);
       return;
     }
 
   array = json_node_get_array (node);
   json_array_foreach_element (array, collect_projects, &projects);
   g_task_return_pointer (task, projects, (GDestroyNotify) free_projects);
+  g_object_unref (task);
 }
 
 void
@@ -580,6 +588,7 @@ get_project_invoke_cb (GObject      *source_object,
   if (!rest_proxy_call_invoke_finish (call, res, &error))
     {
       g_task_return_error (task, error);
+      g_object_unref (task);
       return;
     }
 
@@ -591,6 +600,7 @@ get_project_invoke_cb (GObject      *source_object,
     {
       g_object_unref (parser);
       g_task_return_error (task, error);
+      g_object_unref (task);
       return;
     }
 
@@ -602,6 +612,7 @@ get_project_invoke_cb (GObject      *source_object,
                                ZANATA_ERROR,
                                ZANATA_ERROR_INVALID_RESPONSE,
                                "root element is not an array");
+      g_object_unref (task);
       return;
     }
 
@@ -614,6 +625,7 @@ get_project_invoke_cb (GObject      *source_object,
                                ZANATA_ERROR,
                                ZANATA_ERROR_INVALID_RESPONSE,
                                "\"id\" is not given");
+      g_object_unref (task);
       return;
     }
   name = json_object_get_string_member (object, "name");
@@ -624,6 +636,7 @@ get_project_invoke_cb (GObject      *source_object,
                                ZANATA_ERROR,
                                ZANATA_ERROR_INVALID_RESPONSE,
                                "\"name\" is not given");
+      g_object_unref (task);
       return;
     }
   status = json_object_get_string_member (object, "status");
@@ -634,6 +647,7 @@ get_project_invoke_cb (GObject      *source_object,
                                ZANATA_ERROR,
                                ZANATA_ERROR_INVALID_RESPONSE,
                                "\"status\" is not given");
+      g_object_unref (task);
       return;
     }
   enum_class = g_type_class_ref (ZANATA_TYPE_PROJECT_STATUS);
@@ -653,6 +667,7 @@ get_project_invoke_cb (GObject      *source_object,
                                ZANATA_ERROR,
                                ZANATA_ERROR_INVALID_RESPONSE,
                                "\"iterations\" is not given");
+      g_object_unref (task);
       return;
     }
 
@@ -667,6 +682,7 @@ get_project_invoke_cb (GObject      *source_object,
   json_array_foreach_element (array, collect_iterations, project);
 
   g_task_return_pointer (task, project, g_object_unref);
+  g_object_unref (task);
 }
 
 void
@@ -717,6 +733,5 @@ zanata_session_get_project_finish (ZanataSession  *session,
                                    GError        **error)
 {
   g_return_val_if_fail (g_task_is_valid (result, session), NULL);
-
   return g_task_propagate_pointer (G_TASK (result), error);
 }

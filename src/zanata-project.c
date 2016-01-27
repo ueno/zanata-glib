@@ -210,6 +210,7 @@ get_project_cb (GObject      *source_object,
     {
       g_mutex_unlock (&project->lock);
       g_task_return_error (task, error);
+      g_object_unref (task);
       return;
     }
 
@@ -219,6 +220,7 @@ get_project_cb (GObject      *source_object,
   g_mutex_unlock (&project->lock);
 
   g_task_return_boolean (task, TRUE);
+  g_object_unref (task);
 }
 
 void
@@ -244,6 +246,7 @@ zanata_project_get_iterations (ZanataProject       *project,
     {
       g_mutex_unlock (&project->lock);
       g_task_return_boolean (task, TRUE);
+      g_object_unref (task);
     }
 }
 
@@ -253,7 +256,10 @@ zanata_project_get_iterations (ZanataProject       *project,
  * @result: a #GAsyncResult
  * @error: a #GError
  *
- * Returns: (transfer full) (element-type ZanataIteration): a list of #ZanataIteration
+ * Finishes zanata_project_get_iterations() operation.
+ *
+ * Returns: (transfer full) (element-type ZanataIteration): a list of
+ * #ZanataIteration
  */
 GList *
 zanata_project_get_iterations_finish (ZanataProject  *project,
