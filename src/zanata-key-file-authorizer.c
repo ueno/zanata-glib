@@ -84,7 +84,7 @@ zanata_key_file_authorizer_process_call (ZanataAuthorizer *iface,
   g_free (key);
 
   if (value)
-    rest_proxy_call_add_header (call, "X-Auth-Token", value);
+    rest_proxy_call_add_header (call,  "X-Auth-Token", value);
   else
     {
       g_warning ("%s", error->message);

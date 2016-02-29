@@ -82,6 +82,10 @@ zanata_project_get_property (GObject    *object,
 
   switch (prop_id)
     {
+    case PROP_SESSION:
+      g_value_set_object (value, self->session);
+      break;
+
     case PROP_ID:
       g_value_set_string (value, self->id);
       break;
@@ -143,7 +147,7 @@ zanata_project_class_init (ZanataProjectClass *klass)
                          "Session",
                          "Session",
                          ZANATA_TYPE_SESSION,
-                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE);
+                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
   project_pspecs[PROP_ID] =
     g_param_spec_string ("id",
                          "ID",
@@ -275,8 +279,8 @@ zanata_project_get_iterations_finish (ZanataProject  *project,
 }
 
 void
-zanata_project_add_iteration (ZanataProject   *project,
-                              ZanataIteration *iteration)
+_zanata_project_add_iteration (ZanataProject   *project,
+                               ZanataIteration *iteration)
 {
   project->iterations = g_list_append (project->iterations, iteration);
 }
